@@ -16,6 +16,7 @@
 #include <linux/err.h>
 #include <linux/slab.h>
 #include <linux/stat.h>
+#include <linux/of.h>
 #include <linux/pm_runtime.h>
 
 #include <linux/mmc/card.h>
@@ -357,6 +358,7 @@ int mmc_add_card(struct mmc_card *card)
 			mmc_hostname(card->host),
 			mmc_card_uhs(card) ? "ultra high speed " :
 			(mmc_card_highspeed(card) ? "high speed " : ""),
+			mmc_card_hs400(card) ? "HS400 " :
 			(mmc_card_hs200(card) ? "HS200 " : ""),
 			mmc_card_ddr_mode(card) ? "DDR " : "",
 			uhs_bus_speed_mode, type, card->rca);
@@ -366,6 +368,8 @@ int mmc_add_card(struct mmc_card *card)
 	mmc_add_card_debugfs(card);
 #endif
 	mmc_init_context_info(card->host);
+
+	card->dev.of_node = mmc_of_find_child_device(card->host, 0);
 
 	ret = device_add(&card->dev);
 	if (ret)
@@ -395,6 +399,8 @@ void mmc_remove_card(struct mmc_card *card)
 				mmc_hostname(card->host), card->rca);
 		}
 		device_del(&card->dev);
+		of_node_put(card->dev.of_node);
+
 	}
 
 	put_device(&card->dev);

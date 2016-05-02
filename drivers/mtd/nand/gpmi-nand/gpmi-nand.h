@@ -1,7 +1,7 @@
 /*
  * Freescale GPMI NAND Flash Driver
  *
- * Copyright (C) 2010-2011 Freescale Semiconductor, Inc.
+ * Copyright (C) 2010-2015 Freescale Semiconductor, Inc.
  * Copyright (C) 2008 Embedded Alley Solutions, Inc.
  *
  * This program is free software; you can redistribute it and/or modify
@@ -119,11 +119,28 @@ struct nand_timing {
 	int8_t  tRHOH_in_ns;
 };
 
+enum gpmi_type {
+	IS_MX23,
+	IS_MX28,
+	IS_MX6Q,
+	IS_MX6QP,
+	IS_MX6SX,
+	IS_MX7D,
+	IS_MX6UL
+};
+
+struct gpmi_devdata {
+	enum gpmi_type type;
+	int bch_max_ecc_strength;
+	int max_chain_delay; /* See the async EDO mode */
+};
+
 struct gpmi_nand_data {
 	/* flags */
 #define GPMI_ASYNC_EDO_ENABLED	(1 << 0)
 #define GPMI_TIMING_INIT_OK	(1 << 1)
 	int			flags;
+	const struct gpmi_devdata *devdata;
 
 	/* System Interface */
 	struct device		*dev;
@@ -260,6 +277,7 @@ extern int start_dma_with_bch_irq(struct gpmi_nand_data *,
 				struct dma_async_tx_descriptor *);
 
 /* GPMI-NAND helper function library */
+extern int __gpmi_enable_clk(struct gpmi_nand_data *, bool v);
 extern int gpmi_init(struct gpmi_nand_data *);
 extern int gpmi_extra_init(struct gpmi_nand_data *);
 extern void gpmi_clear_bch(struct gpmi_nand_data *);
@@ -281,15 +299,16 @@ extern int gpmi_read_page(struct gpmi_nand_data *,
 #define STATUS_ERASED		0xff
 #define STATUS_UNCORRECTABLE	0xfe
 
-/* BCH's bit correction capability. */
-#define MXS_ECC_STRENGTH_MAX	20	/* mx23 and mx28 */
-#define MX6_ECC_STRENGTH_MAX	40
+/* Use the devdata to distinguish different Archs. */
+#define GPMI_IS_MX23(x)		((x)->devdata->type == IS_MX23)
+#define GPMI_IS_MX28(x)		((x)->devdata->type == IS_MX28)
+#define GPMI_IS_MX6Q(x)		((x)->devdata->type == IS_MX6Q)
+#define GPMI_IS_MX6QP(x)	((x)->devdata->type == IS_MX6QP)
+#define GPMI_IS_MX6SX(x)	((x)->devdata->type == IS_MX6SX)
+#define GPMI_IS_MX7D(x)		((x)->devdata->type == IS_MX7D)
+#define GPMI_IS_MX6UL(x)	((x)->devdata->type == IS_MX6UL)
 
-/* Use the platform_id to distinguish different Archs. */
-#define IS_MX23			0x0
-#define IS_MX28			0x1
-#define IS_MX6Q			0x2
-#define GPMI_IS_MX23(x)		((x)->pdev->id_entry->driver_data == IS_MX23)
-#define GPMI_IS_MX28(x)		((x)->pdev->id_entry->driver_data == IS_MX28)
-#define GPMI_IS_MX6Q(x)		((x)->pdev->id_entry->driver_data == IS_MX6Q)
+#define GPMI_IS_MX6(x)		(GPMI_IS_MX6Q(x) || GPMI_IS_MX6QP(x)\
+	   || GPMI_IS_MX6SX(x) || GPMI_IS_MX6UL(x))
+#define GPMI_IS_MX7(x)		(GPMI_IS_MX7D(x))
 #endif
