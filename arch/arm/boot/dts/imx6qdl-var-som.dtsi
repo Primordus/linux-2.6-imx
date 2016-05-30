@@ -426,6 +426,15 @@
 				MX6QDL_PAD_GPIO_0__CCM_CLKO1 			0x130b0			/* Audio Codec Clock */
 				/* Camera Clock */
 				MX6QDL_PAD_GPIO_3__CCM_CLKO2			0x130b0			/* Camera MCLK */
+                /* Custom user defined GPIOs */
+                MX6QDL_PAD_EIM_DA8__GPIO3_IO08      0x506d
+                MX6QDL_PAD_EIM_DA9__GPIO3_IO09      0x506d
+                MX6QDL_PAD_EIM_DA10__GPIO3_IO10      0x506d
+                MX6QDL_PAD_EIM_DA11__GPIO3_IO11      0x506d
+                MX6QDL_PAD_EIM_DA12__GPIO3_IO12      0x506d
+                MX6QDL_PAD_EIM_DA13__GPIO3_IO13      0x506d
+                MX6QDL_PAD_EIM_DA14__GPIO3_IO14      0x506d
+                MX6QDL_PAD_EIM_DA15__GPIO3_IO15      0x506d
 			>;
 		};
 
